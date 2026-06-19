@@ -27,6 +27,13 @@ ARGive collapses that into a single substrate:
 | **Full provenance** | DB versions, tool versions, release tag frozen per record | `build_record.py` → `_provenance` |
 | **Context** | LLM-extracted paper metadata + environmental join (later phases) | `metadata/`, `enrich/` |
 
+> **Current MVP scope:** the pipeline runs **ResFinder/KMA only** (read-based →
+> depth → hAMRonize standardized terminology → SingleM copies-per-genome). The
+> multi-pipeline *concordance* pillar is built but **not yet wired**: the
+> AMRFinderPlus / RGI / abricate / MEGAHIT modules live in `modules/local/` and
+> are re-enabled from the block marked *"CONCORDANCE (disabled)"* in
+> `pipeline/workflows/argive.nf`. With one caller, every gene's `concordance == 1`.
+
 ---
 
 ## Repository layout

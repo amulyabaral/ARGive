@@ -32,7 +32,7 @@ def banner() {
     ------------------------------------------------------------
      input        : ${params.input}
      outdir       : ${params.outdir}
-     skip_assembly: ${params.skip_assembly}
+     callers      : ResFinder/KMA (read-based) — MVP
      min_identity : ${params.min_identity}
      profiles     : ${workflow.profile}
     ============================================================
