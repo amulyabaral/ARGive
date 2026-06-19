@@ -38,14 +38,22 @@ backend/
     nextflow.config         # params + profile selection
     conf/
       base.config           # per-process cpu/mem/time labels
+      logging.config        # trace fields, lenient cache (resume), weblog
       slurm.config          # SLURM executor profile (HPC)
+      awsbatch.config       # AWS Batch executor (first-class cloud target)
+      googlebatch.config    # Google Cloud Batch executor
+      k8s.config            # Kubernetes executor (any cloud / on-prem)
       apptainer.config      # Apptainer/Singularity container profile
+      r2.config             # Cloudflare R2 as the S3 output store
       test.config           # tiny smoke-test profile
     workflows/argive.nf     # the ARGive subworkflow (channel wiring)
-    modules/local/*.nf      # one process per tool
+    modules/local/*.nf      # one process per tool (+ publish_release.nf)
     bin/                    # helper scripts shipped to every task (on PATH)
       build_record.py       # merge harmonized hits + depth + denominator -> record JSON
       normalize_copies.py   # depth + genome-equivalents -> copies/genome
+      make_manifest.py      # assemble a citable release bundle (TSV + manifest + CITATION + sums)
+      zenodo_upload.py      # deposit a release to Zenodo -> mint DOI
+    docs/aws-batch-setup.md # AWS Batch + R2 deployment + cost guide
     assets/
       drug_class_map.tsv    # controlled drug-class vocabulary
       record.schema.json    # JSON Schema for a per-sample ARGive record
@@ -99,24 +107,53 @@ record's `_provenance`. Bumping any of these = a new release tag, never a silent
 
 ---
 
-## Quickstart (on the cluster, not here)
+## Where it runs
+
+The pipeline is **cloud-native and portable** — the same containers run on any of:
+
+| Target | Profile | Notes |
+|---|---|---|
+| **AWS Batch + R2** | `-profile awsbatch,r2` | **First-class.** See [`pipeline/docs/aws-batch-setup.md`](pipeline/docs/aws-batch-setup.md) |
+| Google Cloud Batch | `-profile googlebatch` | Spot VMs, GCS work dir |
+| Kubernetes | `-profile k8s,apptainer` | Any cloud / on-prem, no lock-in |
+| HPC (SLURM) | `-profile slurm,apptainer` | Sigma2/NRIS etc. |
+| Laptop smoke test | `-profile test,apptainer` | tiny 2-sample DAG check |
+
+Outputs (records, KMA **alignment evidence**, and the per-release citable bundle)
+publish to `--outdir`, which can be a local path or a Cloudflare R2 `s3://` URL.
+
+## Quickstart
 
 ```bash
-# from a login node with Nextflow + Apptainer available
-module load Nextflow Apptainer        # or NRIS/Sigma2 equivalents
-cd backend/pipeline
+# cloud (first-class): AWS Batch compute + R2 storage
+export AWS_ACCESS_KEY_ID=...  AWS_SECRET_ACCESS_KEY=...  ARGIVE_R2_ENDPOINT=https://<acct>.r2.cloudflarestorage.com
+nextflow run main.nf -profile awsbatch,r2 \
+  --input samplesheet.csv --outdir s3://argive-archive/v2026.06 \
+  -w s3://argive-work/scratch --aws_queue argive-queue --release v2026.06 -resume
 
-# smoke test on a tiny bundled sample (single node)
-nextflow run main.nf -profile test,apptainer
-
-# real run on SLURM
-nextflow run main.nf \
-  -profile slurm,apptainer \
-  --input  /path/to/samplesheet.csv \
-  --outdir /cluster/work/argive/v2026.06 \
-  -resume
+# HPC alternative
+nextflow run main.nf -profile slurm,apptainer \
+  --input samplesheet.csv --outdir /cluster/work/argive/v2026.06 -resume
 ```
+
+**Operational verbs the design supports:**
+- *Fetch new data* — append rows to `samplesheet.csv`, re-run with `-resume`; only new samples compute.
+- *Redo one analysis* — bump that tool's pinned version (→ new release tag) and `-resume`.
+- *Resume after failure* — `cache = 'lenient'` makes `-resume` reliable on object/networked storage; failed tasks keep `.command.*` for inspection (`cleanup=false`).
 
 `samplesheet.csv` columns are documented in
 [`pipeline/assets/samplesheet.schema.json`](pipeline/assets/samplesheet.schema.json). Minimum:
 just an `accession` (reads are fetched from ENA); optionally point at local `fastq_1`/`fastq_2`.
+
+## Outputs (under `--outdir`)
+
+```
+records/      <accession>.record.json     # per-sample, validated, provenance-stamped
+              <accession>.hamronized.tsv  # per-sample harmonized hits
+alignments/   <accession>.kma_align.tar.gz# KMA .aln + .frag.gz read-level evidence
+release/bundle/
+              argive_<release>.hamronized.tsv  # ALL samples combined (the citable artifact)
+              manifest.json  CITATION.cff  SHA256SUMS
+              zenodo.json    # present if --publish_zenodo (deposition id + DOI)
+pipeline_info/ trace.txt report.html timeline.html dag.html software_versions.yml
+```

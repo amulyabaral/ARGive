@@ -11,7 +11,8 @@
  */
 nextflow.enable.dsl = 2
 
-include { ARGIVE } from './workflows/argive.nf'
+include { ARGIVE }          from './workflows/argive.nf'
+include { PUBLISH_RELEASE } from './modules/local/publish_release.nf'
 
 // ---------------------------------------------------------------------------
 // param validation (fail fast, before any compute is scheduled)
@@ -74,6 +75,15 @@ workflow {
 
     ch_samples = parse_samplesheet()
     ARGIVE( ch_samples )
+
+    // assemble a citable release bundle (combined TSV + manifest + CITATION + sums),
+    // publish to outdir (R2-capable) and optionally deposit to Zenodo for a DOI
+    if (params.publish_release) {
+        PUBLISH_RELEASE(
+            ARGIVE.out.record.map { meta, f -> f }.collect(),
+            ARGIVE.out.harmonized.collect(),
+        )
+    }
 
     // dump all collected tool/db versions for reproducibility
     ARGIVE.out.versions
