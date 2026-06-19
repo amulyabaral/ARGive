@@ -1,0 +1,39 @@
+# --- Nextflow / pipeline runtime ---
+work/
+.nextflow/
+.nextflow.log*
+results/
+results_*/
+pipeline_info/
+apptainer_cache/
+*.sif
+*.img
+
+# --- bioinformatics intermediates (never commit data) ---
+*.fastq
+*.fastq.gz
+*.fq.gz
+*.bam
+*.sam
+*.cram
+*.fa.gz
+assemblies/
+
+# --- python ---
+__pycache__/
+*.pyc
+.venv/
+venv/
+*.egg-info/
+
+# --- secrets / local config ---
+.env
+*.local
+secrets/
+*.token
+
+# --- OS / editor ---
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

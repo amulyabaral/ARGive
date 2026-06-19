@@ -1,0 +1,60 @@
+# ARGive controlled drug-class vocabulary
+# Maps the heterogeneous drug-class / antibiotic-class strings emitted by the
+# different AMR tools (and harmonized by hAMRonize) onto a single label that the
+# frontend groups and colours by. Match is case-insensitive on `raw`.
+# Anything unmatched falls through to "Other" and is logged by build_record.py
+# so the vocabulary can be extended deliberately rather than silently.
+#
+# raw	canonical
+beta-lactam	Beta-lactam
+beta_lactam	Beta-lactam
+betalactam	Beta-lactam
+cephalosporin	Beta-lactam
+penam	Beta-lactam
+penem	Beta-lactam
+carbapenem	Beta-lactam
+monobactam	Beta-lactam
+cephamycin	Beta-lactam
+aminoglycoside	Aminoglycoside
+aminoglycosides	Aminoglycoside
+streptomycin	Aminoglycoside
+tetracycline	Tetracycline
+tetracyclines	Tetracycline
+glycylcycline	Tetracycline
+sulfonamide	Sulfonamide
+sulphonamide	Sulfonamide
+sulfonamides	Sulfonamide
+folate pathway antagonist	Sulfonamide
+trimethoprim	Trimethoprim
+diaminopyrimidine	Trimethoprim
+macrolide	Macrolide
+macrolides	Macrolide
+lincosamide	Macrolide
+streptogramin	Macrolide
+macrolide-lincosamide-streptogramin	Macrolide
+mls	Macrolide
+fluoroquinolone	Fluoroquinolone
+fluoroquinolones	Fluoroquinolone
+quinolone	Fluoroquinolone
+quinolones	Fluoroquinolone
+phenicol	Phenicol
+chloramphenicol	Phenicol
+amphenicol	Phenicol
+glycopeptide	Glycopeptide
+glycopeptides	Glycopeptide
+vancomycin	Glycopeptide
+bacitracin	Bacitracin
+peptide	Bacitracin
+colistin	Polymyxin
+polymyxin	Polymyxin
+fosfomycin	Fosfomycin
+rifamycin	Rifamycin
+rifampin	Rifamycin
+nitroimidazole	Nitroimidazole
+disinfectant	Disinfectant
+disinfecting agents and antiseptics	Disinfectant
+quaternary ammonium	Disinfectant
+acridine dye	Disinfectant
+multidrug	Multidrug
+multi-drug	Multidrug
+efflux	Multidrug

@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ARGive — the living archive of the world's resistome</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <!-- ===================== HOME ===================== -->
+  <main id="home" class="view">
+    <nav class="topbar">
+      <span class="brand-mark">ARG<span>ive</span></span>
+      <span class="live-pill"><span class="live-dot"></span> Live · last ingest <b id="last-ingest">8 min ago</b> · release <b id="release">v2026.06</b></span>
+    </nav>
+
+    <header class="hero">
+      <h1 class="hero-title">The living archive of the world's resistome.</h1>
+      <p class="hero-sub">ARGive continuously scans public metagenomes, calls antimicrobial-resistance genes, normalises them to a common denominator, and joins each sample to its environment — so anyone can find, compare, and cite resistome data without touching a raw read.</p>
+
+      <div class="searchbar">
+        <svg viewBox="0 0 24 24" class="search-icon" aria-hidden="true"><path d="M21 21l-4.3-4.3M11 18a7 7 0 1 1 0-14 7 7 0 0 1 0 14z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        <input id="search" type="text" autocomplete="off" placeholder="Search the archive — gene, drug class, biome, country, or accession" />
+      </div>
+      <div class="quickchips" id="quickchips">
+        <span class="chip" data-q="soil">soil</span>
+        <span class="chip" data-q="wastewater">wastewater</span>
+        <span class="chip" data-q="sulfonamide">sulfonamide</span>
+        <span class="chip" data-q="blaKPC-2">blaKPC-2</span>
+        <span class="chip" data-q="Nanopore">Nanopore</span>
+      </div>
+
+      <div class="stat-strip" id="stat-strip"><!-- filled by app.js --></div>
+    </header>
+
+    <!-- ====== EXPLORE (default view) ====== -->
+    <section id="explore" class="explore">
+      <div class="block map-block">
+        <div class="block-head">
+          <h2>Where the archive reaches</h2>
+          <span class="block-note" id="map-note"></span>
+        </div>
+        <div id="map"></div>
+      </div>
+
+      <div class="block gene-block">
+        <div class="block-head"><h2>Resistance genes mapped</h2><span class="block-note">size = samples carrying it · colour = drug class · click to search</span></div>
+        <div id="gene-legend" class="gene-legend"></div>
+        <div id="gene-cloud" class="gene-cloud"></div>
+      </div>
+
+      <div class="block">
+        <div class="block-head"><h2>Recently archived</h2><span class="block-note">continuous ingest</span></div>
+        <div id="recent" class="recent"></div>
+      </div>
+
+      <div class="block cite-block">
+        <div class="cite-left">
+          <h2>Cite the archive, not just the data</h2>
+          <p>Every record carries its source accession and a release tag. Pull a resistome from ARGive and you get a citation manifest with it — so your methods can say exactly where the data came from, and we can say how many studies it powered.</p>
+        </div>
+        <div class="cite-right">
+          <div class="cite-box" id="cite-box"></div>
+          <button class="btn" id="copy-cite">Copy citation</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====== RESULTS (shown while searching) ====== -->
+    <section id="results-wrap" class="results-wrap" hidden>
+      <div class="results-head">
+        <span id="result-count" class="result-count"></span>
+        <button class="backlink" id="clear-search">← Back to overview</button>
+      </div>
+      <div id="results" class="results"></div>
+      <p id="empty" class="empty" hidden>No datasets match that search.</p>
+    </section>
+
+    <footer class="foot">
+      ARGive stores derived results only — ARG hits, genome-equivalent denominators, and paper-extracted context. Never raw reads. · <span class="proto-tag">Prototype · sample data</span>
+    </footer>
+  </main>
+
+  <!-- ===================== DETAIL ===================== -->
+  <section id="detail" class="view" hidden></section>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

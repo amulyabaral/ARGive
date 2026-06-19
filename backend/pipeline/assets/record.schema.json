@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://argive.org/schema/record.schema.json",
+  "title": "ARGive per-sample record",
+  "description": "Terminal output of the reprocessing pipeline: one harmonized, normalized, provenance-stamped record per metagenome. Superset of the object the frontend consumes in data.js.",
+  "type": "object",
+  "required": ["accession", "study", "genome_equivalents", "args", "_provenance"],
+  "additionalProperties": true,
+  "properties": {
+    "accession": { "type": "string", "description": "ENA/SRA run accession, e.g. ERR4796012" },
+    "study": { "type": "string", "description": "Study/project accession, e.g. PRJEB39047" },
+    "title": { "type": "string" },
+    "biome": { "type": "string", "description": "Controlled biome label" },
+    "country": { "type": "string" },
+    "lat": { "type": ["number", "null"] },
+    "lon": { "type": ["number", "null"] },
+    "date": { "type": ["string", "null"], "description": "ISO sampling/collection date" },
+    "platform": { "type": ["string", "null"] },
+    "bp": { "type": ["integer", "null"], "description": "Total bases sequenced (post-QC)" },
+    "genome_equivalents": {
+      "type": "number",
+      "description": "SingleM genome-equivalents denominator; the basis for copies/genome"
+    },
+    "args": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/argHit" }
+    },
+    "_provenance": { "$ref": "#/$defs/provenance" }
+  },
+  "$defs": {
+    "argHit": {
+      "type": "object",
+      "required": ["gene", "drug_class", "tools", "concordance"],
+      "additionalProperties": true,
+      "properties": {
+        "gene": { "type": "string", "description": "Harmonized gene symbol (hAMRonize gene_symbol)" },
+        "gene_name": { "type": ["string", "null"] },
+        "drug_class": { "type": "string", "description": "Mapped to controlled vocabulary (assets/drug_class_map.tsv)" },
+        "identity": { "type": ["number", "null"], "description": "Best %% sequence identity across calling tools" },
+        "depth": { "type": ["number", "null"], "description": "Read-mapped depth (ResFinder/KMA); null if assembly-only call" },
+        "copies_per_genome": { "type": ["number", "null"], "description": "depth normalized by genome_equivalents" },
+        "coverage": { "type": ["number", "null"], "description": "Reference coverage fraction (read-mapped)" },
+        "tools": {
+          "type": "array",
+          "items": { "type": "string", "enum": ["amrfinderplus", "rgi", "resfinder", "abricate"] },
+          "description": "Pipelines that independently called this gene"
+        },
+        "concordance": { "type": "integer", "minimum": 1, "maximum": 4, "description": "len(tools) — the ARGive trust signal" },
+        "aro": { "type": ["string", "null"], "description": "CARD ARO accession when available (from RGI)" },
+        "reference_accession": { "type": ["string", "null"], "description": "Canonical reference DB accession" }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "required": ["release", "tool_versions"],
+      "additionalProperties": true,
+      "properties": {
+        "release": { "type": "string", "description": "ARGive release tag, e.g. v2026.06" },
+        "pipeline_revision": { "type": ["string", "null"], "description": "git commit of the pipeline" },
+        "tool_versions": {
+          "type": "object",
+          "description": "Frozen tool + database versions, e.g. {\"amrfinderplus\": \"4.0.3\", \"card\": \"4.0.0\"}",
+          "additionalProperties": { "type": "string" }
+        }
+      }
+    }
+  }
+}
