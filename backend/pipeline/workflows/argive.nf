@@ -92,6 +92,8 @@ workflow ARGIVE {
     ch_versions = ch_versions.mix(EMIT_RECORD.out.versions)
 
     emit:
-    record   = EMIT_RECORD.out.record
-    versions = ch_versions
+    record     = EMIT_RECORD.out.record
+    harmonized = EMIT_RECORD.out.harmonized
+    alignments = RESFINDER.out.align        // KMA alignment evidence per sample
+    versions   = ch_versions
 }
